@@ -4,26 +4,26 @@ import json
 import os
 from typing import Any
 
-from firn.core import GripOrchestrator, RenderConfig
-from firn.ui import ui
+from goggles.core import GripOrchestrator, RenderConfig
+from goggles.ui import ui
 
 GFM_PARITY_CSS = """
-/* Firn Crystalline Minimal Frame & GitHub Callout / Alert Parity */
+/* Goggles Crystalline Minimal Frame & GitHub Callout / Alert Parity */
 :root {
-  --firn-note: #0969da;
-  --firn-tip: #1a7f37;
-  --firn-important: #8250df;
-  --firn-warning: #9a6700;
-  --firn-caution: #cf222e;
+  --goggles-note: #0969da;
+  --goggles-tip: #1a7f37;
+  --goggles-important: #8250df;
+  --goggles-warning: #9a6700;
+  --goggles-caution: #cf222e;
 }
 
 html[data-color-mode="dark"] {
   color-scheme: dark;
-  --firn-note: #2f81f7;
-  --firn-tip: #3fb950;
-  --firn-important: #a371f7;
-  --firn-warning: #d29922;
-  --firn-caution: #f85149;
+  --goggles-note: #2f81f7;
+  --goggles-tip: #3fb950;
+  --goggles-important: #a371f7;
+  --goggles-warning: #d29922;
+  --goggles-caution: #f85149;
   background-color: #0d1117 !important;
   color: #e6edf3 !important;
 }
@@ -95,33 +95,33 @@ html[data-color-mode="dark"] .markdown-body a {
 }
 
 /* Default Clean Document Mode: strip Grip's phantom GitHub sidebar grid and nested Box chrome */
-html:not([data-firn-layout="github"]),
-html:not([data-firn-layout="github"]) body,
-html:not([data-firn-layout="github"]) .page {
+html:not([data-goggles-layout="github"]),
+html:not([data-goggles-layout="github"]) body,
+html:not([data-goggles-layout="github"]) .page {
   margin: 0 !important;
   padding: 0 !important;
   width: 100% !important;
   min-height: 100vh !important;
 }
 
-html:not([data-firn-layout="github"]) .preview-page {
+html:not([data-goggles-layout="github"]) .preview-page {
   margin: 0 !important;
   padding: 0 !important;
 }
 
-html:not([data-firn-layout="github"]) .container,
-html:not([data-firn-layout="github"]) .container-lg,
-html:not([data-firn-layout="github"]) .container-xl,
-html:not([data-firn-layout="github"]) .new-discussion-timeline,
-html:not([data-firn-layout="github"]) .repository-content {
+html:not([data-goggles-layout="github"]) .container,
+html:not([data-goggles-layout="github"]) .container-lg,
+html:not([data-goggles-layout="github"]) .container-xl,
+html:not([data-goggles-layout="github"]) .new-discussion-timeline,
+html:not([data-goggles-layout="github"]) .repository-content {
   max-width: 100% !important;
   width: 100% !important;
   margin: 0 !important;
   padding: 0 !important;
 }
 
-html:not([data-firn-layout="github"]) .Layout,
-html:not([data-firn-layout="github"]) .Layout-main {
+html:not([data-goggles-layout="github"]) .Layout,
+html:not([data-goggles-layout="github"]) .Layout-main {
   display: block !important;
   grid-template-columns: 1fr !important;
   width: 100% !important;
@@ -130,9 +130,9 @@ html:not([data-firn-layout="github"]) .Layout-main {
   padding: 0 !important;
 }
 
-html:not([data-firn-layout="github"]) #readme,
-html:not([data-firn-layout="github"]) .Box,
-html:not([data-firn-layout="github"]) .Box--responsive {
+html:not([data-goggles-layout="github"]) #readme,
+html:not([data-goggles-layout="github"]) .Box,
+html:not([data-goggles-layout="github"]) .Box--responsive {
   border: none !important;
   border-radius: 0 !important;
   box-shadow: none !important;
@@ -142,20 +142,20 @@ html:not([data-firn-layout="github"]) .Box--responsive {
   max-width: 100% !important;
 }
 
-html:not([data-firn-layout="github"]) #readme .Box-header,
-html:not([data-firn-layout="github"]) .Box-header {
+html:not([data-goggles-layout="github"]) #readme .Box-header,
+html:not([data-goggles-layout="github"]) .Box-header {
   display: none !important;
 }
 
-html:not([data-firn-layout="github"]) #readme .Box-body,
-html:not([data-firn-layout="github"]) .Box-body {
+html:not([data-goggles-layout="github"]) #readme .Box-body,
+html:not([data-goggles-layout="github"]) .Box-body {
   padding: 0 !important;
   margin: 0 !important;
   border: none !important;
 }
 
-html:not([data-firn-layout="github"]) #grip-content.markdown-body,
-html:not([data-firn-layout="github"]) .markdown-body.entry-content {
+html:not([data-goggles-layout="github"]) #grip-content.markdown-body,
+html:not([data-goggles-layout="github"]) .markdown-body.entry-content {
   max-width: 100% !important;
   width: 100% !important;
   margin: 0 !important;
@@ -189,36 +189,36 @@ html:not([data-firn-layout="github"]) .markdown-body.entry-content {
 }
 
 .markdown-alert.markdown-alert-note {
-  border-left-color: var(--firn-note);
+  border-left-color: var(--goggles-note);
   background-color: rgba(9, 105, 218, 0.06);
 }
-.markdown-alert.markdown-alert-note .markdown-alert-title { color: var(--firn-note); }
+.markdown-alert.markdown-alert-note .markdown-alert-title { color: var(--goggles-note); }
 
 .markdown-alert.markdown-alert-tip {
-  border-left-color: var(--firn-tip);
+  border-left-color: var(--goggles-tip);
   background-color: rgba(26, 127, 55, 0.06);
 }
-.markdown-alert.markdown-alert-tip .markdown-alert-title { color: var(--firn-tip); }
+.markdown-alert.markdown-alert-tip .markdown-alert-title { color: var(--goggles-tip); }
 
 .markdown-alert.markdown-alert-important {
-  border-left-color: var(--firn-important);
+  border-left-color: var(--goggles-important);
   background-color: rgba(130, 80, 223, 0.06);
 }
-.markdown-alert.markdown-alert-important .markdown-alert-title { color: var(--firn-important); }
+.markdown-alert.markdown-alert-important .markdown-alert-title { color: var(--goggles-important); }
 
 .markdown-alert.markdown-alert-warning {
-  border-left-color: var(--firn-warning);
+  border-left-color: var(--goggles-warning);
   background-color: rgba(154, 103, 0, 0.06);
 }
-.markdown-alert.markdown-alert-warning .markdown-alert-title { color: var(--firn-warning); }
+.markdown-alert.markdown-alert-warning .markdown-alert-title { color: var(--goggles-warning); }
 
 .markdown-alert.markdown-alert-caution {
-  border-left-color: var(--firn-caution);
+  border-left-color: var(--goggles-caution);
   background-color: rgba(207, 34, 46, 0.06);
 }
-.markdown-alert.markdown-alert-caution .markdown-alert-title { color: var(--firn-caution); }
+.markdown-alert.markdown-alert-caution .markdown-alert-title { color: var(--goggles-caution); }
 
-.firn-mermaid-diagram {
+.goggles-mermaid-diagram {
   display: flex;
   justify-content: center;
   margin: 16px 0;
@@ -229,11 +229,11 @@ html:not([data-firn-layout="github"]) .markdown-body.entry-content {
 
 GFM_PARITY_JS = """
 (function() {
-  if (window.__firnEnhanced) return;
-  window.__firnEnhanced = true;
+  if (window.__gogglesEnhanced) return;
+  window.__gogglesEnhanced = true;
 
-  const themePref = __FIRN_THEME__;
-  const initialLayout = __FIRN_LAYOUT__;
+  const themePref = __GOGGLES_THEME__;
+  const initialLayout = __GOGGLES_LAYOUT__;
 
   const applyTheme = (mode) => {
     let resolved = mode;
@@ -244,12 +244,12 @@ GFM_PARITY_JS = """
     document.documentElement.setAttribute("data-color-mode", resolved);
     document.documentElement.setAttribute("data-light-theme", "light");
     document.documentElement.setAttribute("data-dark-theme", "dark");
-    window.__firnCurrentTheme = resolved;
+    window.__gogglesCurrentTheme = resolved;
   };
 
   const applyLayout = (layout) => {
-    document.documentElement.setAttribute("data-firn-layout", layout);
-    window.__firnCurrentLayout = layout;
+    document.documentElement.setAttribute("data-goggles-layout", layout);
+    window.__gogglesCurrentLayout = layout;
   };
 
   applyTheme(themePref);
@@ -297,18 +297,18 @@ GFM_PARITY_JS = """
       );
       if (mermaidBlocks.length > 0) {
         const renderMermaid = () => {
-          const mTheme = window.__firnCurrentTheme === "dark" ? "dark" : "default";
+          const mTheme = window.__gogglesCurrentTheme === "dark" ? "dark" : "default";
           window.mermaid.initialize({ startOnLoad: false, theme: mTheme, securityLevel: "loose" });
           mermaidBlocks.forEach((block, idx) => {
             const container = block.closest("div.highlight-source-mermaid") || block.closest("pre") || block;
             const source = block.textContent || "";
             const target = document.createElement("div");
-            target.className = "mermaid firn-mermaid-diagram";
-            target.id = "firn-mermaid-" + Date.now() + "-" + idx;
+            target.className = "mermaid goggles-mermaid-diagram";
+            target.id = "goggles-mermaid-" + Date.now() + "-" + idx;
             target.textContent = source;
             container.replaceWith(target);
           });
-          window.mermaid.run({ querySelector: ".firn-mermaid-diagram" });
+          window.mermaid.run({ querySelector: ".goggles-mermaid-diagram" });
         };
         if (window.mermaid) {
           renderMermaid();
@@ -368,7 +368,7 @@ GFM_PARITY_JS = """
     observer.observe(gripArticle, { childList: true });
   }
 
-  // Keyboard navigation & shortcuts inside native Firn window
+  // Keyboard navigation & shortcuts inside native Goggles window
   let zoomLevel = 1.0;
   window.addEventListener("keydown", (ev) => {
     const tag = (ev.target && ev.target.tagName) ? ev.target.tagName.toLowerCase() : "";
@@ -380,10 +380,10 @@ GFM_PARITY_JS = """
         window.pywebview.api.close_window();
       }
     } else if (!inInput && ev.key === "t" && !ev.ctrlKey && !ev.metaKey) {
-      const next = window.__firnCurrentTheme === "dark" ? "light" : "dark";
+      const next = window.__gogglesCurrentTheme === "dark" ? "light" : "dark";
       applyTheme(next);
     } else if (!inInput && ev.key === "g" && !ev.ctrlKey && !ev.metaKey) {
-      const nextLayout = window.__firnCurrentLayout === "github" ? "clean" : "github";
+      const nextLayout = window.__gogglesCurrentLayout === "github" ? "clean" : "github";
       applyLayout(nextLayout);
     } else if ((!inInput && ev.key === "r" && !ev.ctrlKey) || ev.key === "F5" || (ev.ctrlKey && ev.key === "r")) {
       ev.preventDefault();
@@ -406,7 +406,7 @@ GFM_PARITY_JS = """
 """
 
 
-class FirnBridge:
+class GogglesBridge:
     """JS-to-Python API exposed to the pywebview frame."""
 
     def __init__(self, orchestrator: GripOrchestrator):
@@ -439,8 +439,8 @@ def launch_viewer(orchestrator: GripOrchestrator, config: RenderConfig):
             f"pywebview is not available in the current Python environment: {exc}"
         ) from exc
 
-    window_title = config.title or f"Firn: {config.target_path.name}"
-    bridge = FirnBridge(orchestrator)
+    window_title = config.title or f"Goggles: {config.target_path.name}"
+    bridge = GogglesBridge(orchestrator)
 
     bg_color = "#0d1117" if config.theme == "dark" else "#ffffff"
 
@@ -463,8 +463,8 @@ def launch_viewer(orchestrator: GripOrchestrator, config: RenderConfig):
         try:
             window.load_css(GFM_PARITY_CSS)
             js_payload = GFM_PARITY_JS.replace(
-                "__FIRN_THEME__", json.dumps(config.theme)
-            ).replace("__FIRN_LAYOUT__", json.dumps(layout_mode))
+                "__GOGGLES_THEME__", json.dumps(config.theme)
+            ).replace("__GOGGLES_LAYOUT__", json.dumps(layout_mode))
             window.evaluate_js(js_payload)
         except Exception:
             pass

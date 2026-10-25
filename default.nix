@@ -6,7 +6,7 @@
   gripPkg = python3Packages.grip;
 in
   python3Packages.buildPythonApplication {
-    pname = "firn";
+    pname = "goggles";
     version = "0.1.0";
     src = lib.cleanSource ./.;
     pyproject = true;
@@ -50,9 +50,9 @@ in
 
     meta = with lib; {
       description = "Instant GitHub-Flavored Markdown (GFM) native desktop document viewer";
-      homepage = "https://github.com/SpanishSyntax/Firn";
+      homepage = "https://github.com/SpanishSyntax/Goggles";
       license = licenses.mit;
-      mainProgram = "firn";
+      mainProgram = "goggles";
       platforms = platforms.linux ++ platforms.darwin;
     };
   }

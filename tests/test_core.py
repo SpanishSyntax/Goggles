@@ -1,7 +1,7 @@
-"""Tests for Firn core process primitives and configuration."""
+"""Tests for Goggles core process primitives and configuration."""
 
 from pathlib import Path
-from firn.core import find_ephemeral_port, resolve_github_token, RenderConfig
+from goggles.core import find_ephemeral_port, resolve_github_token, RenderConfig
 
 
 def test_find_ephemeral_port():

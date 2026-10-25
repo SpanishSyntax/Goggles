@@ -1,4 +1,4 @@
-"""Terminal UI interface for Firn, powered by Prism."""
+"""Terminal UI interface for Goggles, powered by Prism."""
 
 from __future__ import annotations
 
@@ -21,7 +21,7 @@ from prism import (
     visual_len,
 )
 
-ui = UI(app_name="firn", icon="🧊", badge_color="1;36")
+ui = UI(app_name="goggles", icon="🥽", badge_color="1;36")
 
 __all__ = [
     "ui",

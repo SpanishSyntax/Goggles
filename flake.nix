@@ -1,5 +1,5 @@
 {
-  description = "Firn - Instant GitHub-Flavored Markdown (GFM) Native Desktop Viewer";
+  description = "Goggles - Instant GitHub-Flavored Markdown (GFM) Native Desktop Viewer";
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
@@ -23,21 +23,26 @@
         inherit system;
         overlays = [prism.overlays.default];
       };
-      firnPackage = pkgs.callPackage ./default.nix {};
+      gogglesPackage = pkgs.callPackage ./default.nix {};
     in {
       packages = {
-        default = firnPackage;
-        firn = firnPackage;
+        default = gogglesPackage;
+        goggles = gogglesPackage;
+        firn = gogglesPackage;
       };
 
       apps = {
         default = {
           type = "app";
-          program = "${firnPackage}/bin/firn";
+          program = "${gogglesPackage}/bin/goggles";
+        };
+        goggles = {
+          type = "app";
+          program = "${gogglesPackage}/bin/goggles";
         };
         firn = {
           type = "app";
-          program = "${firnPackage}/bin/firn";
+          program = "${gogglesPackage}/bin/goggles";
         };
       };
 
@@ -75,30 +80,32 @@
     // {
       overlays = {
         default = final: prev: {
-          firn = final.callPackage ./default.nix {};
+          goggles = final.callPackage ./default.nix {};
+          firn = final.goggles;
         };
+        goggles = self.overlays.default;
         firn = self.overlays.default;
       };
 
       nixosModules = {
-        default = self.nixosModules.firn;
-        firn = {
+        default = self.nixosModules.goggles;
+        goggles = {
           config,
           lib,
           pkgs,
           ...
         }: let
-          cfg = config.programs.firn;
+          cfg = config.programs.goggles;
           system = pkgs.stdenv.hostPlatform.system;
-          defaultFirn = self.packages.${system}.default;
+          defaultGoggles = self.packages.${system}.default;
         in {
-          options.programs.firn = {
-            enable = lib.mkEnableOption "Firn - Instant GitHub-Flavored Markdown (GFM) native desktop viewer";
+          options.programs.goggles = {
+            enable = lib.mkEnableOption "Goggles - Instant GitHub-Flavored Markdown (GFM) native desktop viewer";
 
             package = lib.mkOption {
               type = lib.types.package;
-              default = defaultFirn;
-              description = "The Firn package to use.";
+              default = defaultGoggles;
+              description = "The Goggles package to use.";
             };
           };
 
@@ -106,45 +113,47 @@
             environment.systemPackages = [cfg.package];
           };
         };
+        firn = self.nixosModules.goggles;
       };
 
       homeManagerModules = {
-        default = self.homeManagerModules.firn;
-        firn = {
+        default = self.homeManagerModules.goggles;
+        goggles = {
           config,
           lib,
           pkgs,
           ...
         }: let
-          cfg = config.programs.firn;
+          cfg = config.programs.goggles;
           tomlFormat = pkgs.formats.toml {};
           system = pkgs.stdenv.hostPlatform.system;
-          defaultFirn = self.packages.${system}.default;
+          defaultGoggles = self.packages.${system}.default;
         in {
-          options.programs.firn = {
-            enable = lib.mkEnableOption "Firn - Instant GitHub-Flavored Markdown (GFM) native desktop viewer";
+          options.programs.goggles = {
+            enable = lib.mkEnableOption "Goggles - Instant GitHub-Flavored Markdown (GFM) native desktop viewer";
 
             package = lib.mkOption {
               type = lib.types.package;
-              default = defaultFirn;
-              description = "The Firn package to use.";
+              default = defaultGoggles;
+              description = "The Goggles package to use.";
             };
 
             settings = lib.mkOption {
               type = tomlFormat.type;
               default = {};
-              description = "Configuration written to ~/.config/firn/firn.toml.";
+              description = "Configuration written to ~/.config/goggles/goggles.toml.";
             };
           };
 
           config = lib.mkIf cfg.enable {
             home.packages = [cfg.package];
 
-            xdg.configFile."firn/firn.toml" = lib.mkIf (cfg.settings != {}) {
-              source = tomlFormat.generate "firn.toml" cfg.settings;
+            xdg.configFile."goggles/goggles.toml" = lib.mkIf (cfg.settings != {}) {
+              source = tomlFormat.generate "goggles.toml" cfg.settings;
             };
           };
         };
+        firn = self.homeManagerModules.goggles;
       };
     };
 }

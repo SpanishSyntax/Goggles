@@ -1,7 +1,7 @@
-"""Tests for Firn document discovery and recursive search."""
+"""Tests for Goggles document discovery and recursive search."""
 
 from pathlib import Path
-from firn.discovery import discover_markdown_target, scan_recursive_markdown
+from goggles.discovery import discover_markdown_target, scan_recursive_markdown
 
 
 def test_discover_markdown_target_explicit(tmp_path: Path):

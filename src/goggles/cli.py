@@ -1,4 +1,4 @@
-"""CLI router, argument parser, and desktop application launcher for Firn."""
+"""CLI router, argument parser, and desktop application launcher for Goggles."""
 
 from __future__ import annotations
 
@@ -7,18 +7,18 @@ import subprocess
 import sys
 from typing import Any, Sequence
 
-from firn import __version__
-from firn.config import load_user_config
-from firn.core import (
+from goggles import __version__
+from goggles.config import load_user_config
+from goggles.core import (
     GripOrchestrator,
     GripStartupError,
     RenderConfig,
     find_ephemeral_port,
     resolve_github_token,
 )
-from firn.discovery import discover_markdown_target, scan_recursive_markdown
-from firn.ui import add_color_args, handle_color_args, ui
-from firn.viewer import launch_viewer
+from goggles.discovery import discover_markdown_target, scan_recursive_markdown
+from goggles.ui import add_color_args, handle_color_args, ui
+from goggles.viewer import launch_viewer
 
 __all__ = [
     "main",
@@ -65,8 +65,8 @@ def print_help() -> None:
     print(f"""{ui.badge()} {ui.bold("Instant GitHub-Flavored Markdown (GFM) Native Desktop Viewer")}
 
 {ui.blue("Usage:")}
-  firn <path-to-markdown> [options]
-  firn [directory] [options]            Auto-discover README.md or select *.md interactively
+  goggles <path-to-markdown> [options]
+  goggles [directory] [options]            Auto-discover README.md or select *.md interactively
 
 {ui.blue("Options:")}
   -p, --port PORT        Bind specific localhost port (default: random ephemeral port)
@@ -74,8 +74,8 @@ def print_help() -> None:
   -g, --github-mode      Render with GitHub repository Box chrome & page layout
   -w, --wide             Render wide GitHub document container (--wide)
   -u, --user-content     Render as GitHub user-content (issues/comments mode)
-  -c, --context REPO     Repository context (e.g. SpanishSyntax/Firn) for autolinks
-  -t, --title TITLE      Override window title (default: "Firn: <filename>")
+  -c, --context REPO     Repository context (e.g. SpanishSyntax/Goggles) for autolinks
+  -t, --title TITLE      Override window title (default: "Goggles: <filename>")
   --theme MODE           Viewer color theme: auto, dark, light (default: auto)
   --dark / --light       Shortcut for --theme=dark / --theme=light
   --frameless            Launch in a frameless minimal native window
@@ -93,16 +93,16 @@ def print_help() -> None:
   -V, -v, --version      Show version information and exit
 
 {ui.blue("Examples:")}
-  firn README.md                      # Open README.md in native WebKitGTK window
-  firn README.md -g                   # Open with full GitHub repository Box layout
-  firn docs/architecture.md --dark    # Render in GitHub Dark mode
-  firn SPEC.md --frameless --wide     # Frameless wide native window
-  firn .                              # Auto-discover or pick Markdown file in current dir
+  goggles README.md                      # Open README.md in native WebKitGTK window
+  goggles README.md -g                   # Open with full GitHub repository Box layout
+  goggles docs/architecture.md --dark    # Render in GitHub Dark mode
+  goggles SPEC.md --frameless --wide     # Frameless wide native window
+  goggles .                              # Auto-discover or pick Markdown file in current dir
 """)
 
 
 def _build_parser(user_cfg: dict[str, Any]) -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(prog="firn", add_help=False)
+    parser = argparse.ArgumentParser(prog="goggles", add_help=False)
     parser.add_argument("path", nargs="?", default=None, help="Path to Markdown document to preview.")
     parser.add_argument("-p", "--port", type=int, default=int(user_cfg.get("port", 0)), help="Local port.")
     parser.add_argument("--host", default=str(user_cfg.get("host", "127.0.0.1")), help="Local host.")
@@ -157,7 +157,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         f"{ui.bold('Viewer Mode:')}      {ui.green(mode_str)} | Theme: {ui.magenta(theme_str)} | Window: {frame_str}",
         f"{ui.bold('Rendering Engine:')} Grip (Local WebKit / PyWebView runtime)",
     ]
-    ui.panel("FIRN GFM DOCUMENT VIEWER", lines)
+    ui.panel("GOGGLES GFM DOCUMENT VIEWER", lines)
 
     config = RenderConfig(
         target_path=target_md,

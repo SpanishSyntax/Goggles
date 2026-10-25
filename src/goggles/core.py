@@ -12,7 +12,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
-from firn.ui import ui
+from goggles.ui import ui
 
 PR_SET_PDEATHSIG = 1
 
@@ -31,7 +31,7 @@ class GripStartupError(RuntimeError):
 
 @dataclass
 class RenderConfig:
-    """Configuration for a Firn document viewing session."""
+    """Configuration for a Goggles document viewing session."""
 
     target_path: Path
     host: str = "127.0.0.1"
@@ -104,13 +104,15 @@ def resolve_github_token(
     if explicit_token and explicit_token.strip():
         return explicit_token.strip(), "CLI --token"
 
-    for env_var in ("GITHUB_TOKEN", "GRIP_TOKEN", "GH_TOKEN", "FIRN_GITHUB_TOKEN"):
+    for env_var in ("GITHUB_TOKEN", "GRIP_TOKEN", "GH_TOKEN", "GOGGLES_GITHUB_TOKEN", "FIRN_GITHUB_TOKEN"):
         val = os.environ.get(env_var, "").strip()
         if val:
             return val, f"env:{env_var}"
 
     xdg_cfg = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config"))
-    token_file = xdg_cfg / "firn" / "token"
+    token_file = xdg_cfg / "goggles" / "token"
+    if not token_file.is_file():
+        token_file = xdg_cfg / "firn" / "token"
     if token_file.is_file():
         try:
             content = token_file.read_text(encoding="utf-8").strip().splitlines()
@@ -122,7 +124,7 @@ def resolve_github_token(
     pass_candidates: list[str] = []
     if pass_path:
         pass_candidates.append(pass_path)
-    env_pass = os.environ.get("FIRN_PASS_PATH", "").strip()
+    env_pass = os.environ.get("GOGGLES_PASS_PATH", os.environ.get("FIRN_PASS_PATH", "")).strip()
     if env_pass and env_pass not in pass_candidates:
         pass_candidates.append(env_pass)
     for std_path in STANDARD_PASS_PATHS:
@@ -186,7 +188,7 @@ class GripOrchestrator:
         grip_bin = shutil.which("grip")
         if not grip_bin:
             raise GripStartupError(
-                "Could not find 'grip' executable in PATH. Ensure Firn is run via its Nix wrapper or devShell."
+                "Could not find 'grip' executable in PATH. Ensure Goggles is run via its Nix wrapper or devShell."
             )
 
         address = f"{self.config.host}:{self.port}"
@@ -204,7 +206,7 @@ class GripOrchestrator:
         if self.config.context:
             cmd.append(f"--context={self.config.context}")
 
-        doc_title = self.config.title or f"Firn: {self.config.target_path.name}"
+        doc_title = self.config.title or f"Goggles: {self.config.target_path.name}"
         cmd.append(f"--title={doc_title}")
 
         if self.config.api_url:

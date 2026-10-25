@@ -1,11 +1,11 @@
-"""Document discovery and search utilities for Firn."""
+"""Document discovery and search utilities for Goggles."""
 
 from __future__ import annotations
 
 import sys
 from pathlib import Path
 
-from firn.ui import ui
+from goggles.ui import ui
 
 
 def scan_recursive_markdown(root: Path) -> list[Path]:
@@ -53,7 +53,7 @@ def discover_markdown_target(raw_path: str | None = None, base_dir: Path | str =
                 f"{ui.bold('Active Directory:')} {search_dir}",
                 f"{ui.bold('Target Document:')}  {ui.dim('No markdown documents (*.md) found in current directory')}",
             ]
-            ui.panel("FIRN GFM DOCUMENT VIEWER", lines)
+            ui.panel("GOGGLES GFM DOCUMENT VIEWER", lines)
             action = ui.select(
                 f"No Markdown document found in '{search_dir.name}'. What would you like to do?",
                 [
@@ -80,7 +80,7 @@ def discover_markdown_target(raw_path: str | None = None, base_dir: Path | str =
             else:
                 sys.exit(0)
 
-        ui.error(f"No Markdown files found in '{search_dir}'. Specify one: firn <file.md>")
+        ui.error(f"No Markdown files found in '{search_dir}'. Specify one: goggles <file.md>")
         sys.exit(1)
 
     if len(md_files) == 1:

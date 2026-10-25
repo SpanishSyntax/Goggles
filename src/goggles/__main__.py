@@ -1,4 +1,4 @@
-from firn.cli import main
+from goggles.cli import main
 
 if __name__ == "__main__":
     main()
