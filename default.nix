@@ -33,7 +33,7 @@ in
       gripPkg
       python3Packages.pywebview
       python3Packages.pygobject3
-      python3Packages.rime
+      python3Packages.prism
     ];
 
     dontWrapGApps = true;
