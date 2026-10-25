@@ -1,4 +1,4 @@
-# Goggles 🥽
+# 🥽 Goggles
 
 > **Instant GitHub-Flavored Markdown (GFM) Native Desktop Document Viewer**
 
