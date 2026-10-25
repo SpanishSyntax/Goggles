@@ -8,7 +8,7 @@ in
   python3Packages.buildPythonApplication {
     pname = "firn";
     version = "0.1.0";
-    src = ./.;
+    src = lib.cleanSource ./.;
     pyproject = true;
 
     build-system = [
