@@ -13,8 +13,6 @@ def load_user_config() -> dict[str, Any]:
     xdg_config = os.environ.get("XDG_CONFIG_HOME")
     base = Path(xdg_config) if xdg_config else Path.home() / ".config"
     cfg_path = base / "goggles" / "goggles.toml"
-    if not cfg_path.is_file():
-        cfg_path = base / "firn" / "firn.toml"
     if cfg_path.is_file():
         try:
             with cfg_path.open("rb") as f:

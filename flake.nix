@@ -28,7 +28,6 @@
       packages = {
         default = gogglesPackage;
         goggles = gogglesPackage;
-        firn = gogglesPackage;
       };
 
       apps = {
@@ -37,10 +36,6 @@
           program = "${gogglesPackage}/bin/goggles";
         };
         goggles = {
-          type = "app";
-          program = "${gogglesPackage}/bin/goggles";
-        };
-        firn = {
           type = "app";
           program = "${gogglesPackage}/bin/goggles";
         };
@@ -81,10 +76,8 @@
       overlays = {
         default = final: prev: {
           goggles = final.callPackage ./default.nix {};
-          firn = final.goggles;
         };
         goggles = self.overlays.default;
-        firn = self.overlays.default;
       };
 
       nixosModules = {
@@ -113,7 +106,6 @@
             environment.systemPackages = [cfg.package];
           };
         };
-        firn = self.nixosModules.goggles;
       };
 
       homeManagerModules = {
@@ -153,7 +145,6 @@
             };
           };
         };
-        firn = self.homeManagerModules.goggles;
       };
     };
 }

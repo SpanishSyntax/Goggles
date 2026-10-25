@@ -15,17 +15,6 @@ def test_load_user_config(tmp_path: Path, monkeypatch):
     assert cfg.get("port") == 5000
 
 
-def test_load_user_config_firn_fallback(tmp_path: Path, monkeypatch):
-    cfg_file = tmp_path / "firn" / "firn.toml"
-    cfg_file.parent.mkdir(parents=True)
-    cfg_file.write_text('theme = "light"\nport = 8080\n', encoding="utf-8")
-    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
-
-    cfg = load_user_config()
-    assert cfg.get("theme") == "light"
-    assert cfg.get("port") == 8080
-
-
 def test_load_user_config_empty(tmp_path: Path, monkeypatch):
     monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path))
     cfg = load_user_config()

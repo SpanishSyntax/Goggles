@@ -104,15 +104,13 @@ def resolve_github_token(
     if explicit_token and explicit_token.strip():
         return explicit_token.strip(), "CLI --token"
 
-    for env_var in ("GITHUB_TOKEN", "GRIP_TOKEN", "GH_TOKEN", "GOGGLES_GITHUB_TOKEN", "FIRN_GITHUB_TOKEN"):
+    for env_var in ("GITHUB_TOKEN", "GRIP_TOKEN", "GH_TOKEN", "GOGGLES_GITHUB_TOKEN"):
         val = os.environ.get(env_var, "").strip()
         if val:
             return val, f"env:{env_var}"
 
     xdg_cfg = Path(os.environ.get("XDG_CONFIG_HOME", Path.home() / ".config"))
     token_file = xdg_cfg / "goggles" / "token"
-    if not token_file.is_file():
-        token_file = xdg_cfg / "firn" / "token"
     if token_file.is_file():
         try:
             content = token_file.read_text(encoding="utf-8").strip().splitlines()
@@ -124,7 +122,7 @@ def resolve_github_token(
     pass_candidates: list[str] = []
     if pass_path:
         pass_candidates.append(pass_path)
-    env_pass = os.environ.get("GOGGLES_PASS_PATH", os.environ.get("FIRN_PASS_PATH", "")).strip()
+    env_pass = os.environ.get("GOGGLES_PASS_PATH", "").strip()
     if env_pass and env_pass not in pass_candidates:
         pass_candidates.append(env_pass)
     for std_path in STANDARD_PASS_PATHS:

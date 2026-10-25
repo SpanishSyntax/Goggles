@@ -33,7 +33,6 @@ test = [
 
 [project.scripts]
 goggles = "goggles.cli:main"
-firn = "goggles.cli:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
