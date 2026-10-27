@@ -46,3 +46,20 @@ def test_interactive_hub_help(monkeypatch, capsys):
     assert ret == 0
     captured = capsys.readouterr()
     assert "Instant GitHub-Flavored Markdown" in captured.out
+
+
+def test_interactive_hub_prompt_nonexistent(monkeypatch, capsys):
+    monkeypatch.setattr(ui, "select", lambda prompt, options: "prompt")
+    monkeypatch.setattr(ui, "prompt", lambda msg: "nonexistent_file.md")
+    ret = run_interactive_hub([], {})
+    assert ret == 1
+    captured = capsys.readouterr()
+    assert "File 'nonexistent_file.md' not found." in captured.err
+
+
+def test_interactive_hub_prompt_empty(monkeypatch):
+    monkeypatch.setattr(ui, "select", lambda prompt, options: "prompt")
+    monkeypatch.setattr(ui, "prompt", lambda msg: "   ")
+    ret = run_interactive_hub([], {})
+    assert ret == 0
+
