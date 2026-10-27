@@ -242,7 +242,7 @@ def run_interactive_hub(docs: list[Path], user_cfg: dict[str, Any]) -> int:
     actions.append(
         (
             "help",
-            "Show CLI Options & Window Keyboard Shortcuts",
+            "Open Help",
             "Print comprehensive CLI usage guide and viewer keybindings",
         )
     )
