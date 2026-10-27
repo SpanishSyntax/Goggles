@@ -28,3 +28,22 @@ def test_render_config():
     assert cfg.width == 1200
     assert cfg.height == 900
     assert cfg.target_path == Path("README.md")
+
+
+def test_goggles_bridge_deferred_close():
+    import time
+    from unittest.mock import MagicMock
+    from goggles.viewer import GogglesBridge
+
+    mock_orch = MagicMock()
+    mock_window = MagicMock()
+
+    bridge = GogglesBridge(mock_orch)
+    bridge.attach_window(mock_window)
+
+    ret = bridge.close_window()
+    assert ret is True
+    time.sleep(0.1)
+
+    mock_window.destroy.assert_called_once()
+    mock_orch.stop.assert_called_once()

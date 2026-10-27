@@ -197,6 +197,9 @@ def main(argv: Sequence[str] | None = None) -> int:
         print()
         orchestrator.stop()
         return 0
+    except SystemExit as exc:
+        orchestrator.stop()
+        return exc.code if isinstance(exc.code, int) else 0
     except Exception as exc:
         orchestrator.stop()
         ui.error_panel("Viewer Runtime Error", str(exc).splitlines())

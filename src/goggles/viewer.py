@@ -418,12 +418,22 @@ class GogglesBridge:
 
     def close_window(self):
         """Closes the native pywebview window and stops the grip daemon."""
-        self._orchestrator.stop()
-        if self._window is not None:
-            try:
-                self._window.destroy()
-            except Exception:
-                pass
+        import threading
+        import time
+
+        def _deferred_close():
+            # Allow the JS bridge return-value evaluate_js callback to complete
+            # before destroying the window, preventing semaphore deadlock in pywebview GTK backend.
+            time.sleep(0.05)
+            if self._window is not None:
+                try:
+                    self._window.destroy()
+                except Exception:
+                    pass
+            self._orchestrator.stop()
+
+        threading.Thread(target=_deferred_close, daemon=True).start()
+        return True
 
 
 def launch_viewer(orchestrator: GripOrchestrator, config: RenderConfig):
@@ -472,8 +482,16 @@ def launch_viewer(orchestrator: GripOrchestrator, config: RenderConfig):
     def _on_closed():
         orchestrator.stop()
 
+    def _on_shown():
+        try:
+            if hasattr(window, "native") and window.native:
+                window.native.present()
+        except Exception:
+            pass
+
     window.events.loaded += _on_loaded
     window.events.closed += _on_closed
+    window.events.shown += _on_shown
 
     gui_backend = os.environ.get("PYWEBVIEW_GUI")
     ui.action(

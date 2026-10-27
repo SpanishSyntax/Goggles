@@ -219,9 +219,14 @@ class GripOrchestrator:
         atexit.register(self.stop)
 
         def _trap_handler(signum: int, _frame: Any):
-            ui.warn(f"Caught signal {signal.Signals(signum).name}, terminating grip daemon...")
             self.stop()
+            if signum == signal.SIGINT:
+                raise KeyboardInterrupt
             raise SystemExit(128 + signum)
+
+        import threading
+        if threading.current_thread() is not threading.main_thread():
+            return
 
         for sig in (signal.SIGINT, signal.SIGTERM, signal.SIGHUP, signal.SIGQUIT):
             try:
@@ -231,6 +236,10 @@ class GripOrchestrator:
                 pass
 
     def _restore_signal_traps(self):
+        import threading
+        if threading.current_thread() is not threading.main_thread():
+            return
+
         for sig, prev in self._prev_handlers.items():
             try:
                 signal.signal(sig, prev)
