@@ -16,7 +16,11 @@ from goggles.core import (
     find_ephemeral_port,
     resolve_github_token,
 )
-from goggles.discovery import discover_markdown_target, scan_recursive_markdown
+from goggles.discovery import (
+    discover_markdown_target,
+    print_status_dashboard,
+    scan_recursive_markdown,
+)
 from goggles.ui import add_color_args, handle_color_args, ui
 from goggles.viewer import launch_viewer
 
@@ -24,6 +28,9 @@ __all__ = [
     "main",
     "discover_markdown_target",
     "scan_recursive_markdown",
+    "print_status_dashboard",
+    "run_interactive_hub",
+    "launch_document_viewer",
     "clear_grip_cache",
     "load_user_config",
     "find_ephemeral_port",
@@ -65,8 +72,9 @@ def print_help() -> None:
     print(f"""{ui.badge()} {ui.bold("Instant GitHub-Flavored Markdown (GFM) Native Desktop Viewer")}
 
 {ui.blue("Usage:")}
-  goggles <path-to-markdown> [options]
-  goggles [directory] [options]            Auto-discover README.md or select *.md interactively
+  goggles                                Open interactive dashboard & document picker
+  goggles <path-to-markdown> [options]   Directly preview Markdown document
+  goggles <directory> [options]          Select *.md interactively within directory
 
 {ui.blue("Options:")}
   -p, --port PORT        Bind specific localhost port (default: random ephemeral port)
@@ -93,11 +101,12 @@ def print_help() -> None:
   -V, -v, --version      Show version information and exit
 
 {ui.blue("Examples:")}
+  goggles                                # Launch interactive dashboard & document picker
   goggles README.md                      # Open README.md in native WebKitGTK window
   goggles README.md -g                   # Open with full GitHub repository Box layout
   goggles docs/architecture.md --dark    # Render in GitHub Dark mode
   goggles SPEC.md --frameless --wide     # Frameless wide native window
-  goggles .                              # Auto-discover or pick Markdown file in current dir
+  goggles docs/                          # Interactively select Markdown file in directory
 """)
 
 
@@ -128,56 +137,44 @@ def _build_parser(user_cfg: dict[str, Any]) -> argparse.ArgumentParser:
     return parser
 
 
-def main(argv: Sequence[str] | None = None) -> int:
-    raw_args = list(argv) if argv is not None else sys.argv[1:]
-    handle_color_args(raw_args)
+def _build_render_config(
+    target_md: Path,
+    user_cfg: dict[str, Any],
+    args: argparse.Namespace | None = None,
+) -> RenderConfig:
+    """Builds a RenderConfig dataclass from CLI arguments or configuration defaults."""
+    return RenderConfig(
+        target_path=target_md,
+        host=args.host if args else str(user_cfg.get("host", "127.0.0.1")),
+        port=args.port if args else int(user_cfg.get("port", 0)),
+        wide=args.wide if args else bool(user_cfg.get("wide", False)),
+        user_content=args.user_content if args else bool(user_cfg.get("user_content", False)),
+        context=args.context if args else user_cfg.get("context"),
+        title=args.title if args else user_cfg.get("title"),
+        api_url=args.api_url if args else user_cfg.get("api_url"),
+        token=args.token if args else user_cfg.get("token"),
+        pass_path=args.pass_path if args else user_cfg.get("pass_path"),
+        no_inline=args.no_inline if args else bool(user_cfg.get("no_inline", True)),
+        frameless=args.frameless if args else bool(user_cfg.get("frameless", False)),
+        github_mode=args.github_mode if args else bool(user_cfg.get("github_mode", False)),
+        theme=args.theme if args else str(user_cfg.get("theme", "auto")),
+        width=args.width if args else int(user_cfg.get("width", 980)),
+        height=args.height if args else int(user_cfg.get("height", 860)),
+        debug=args.debug if args else bool(user_cfg.get("debug", False)),
+    )
 
-    if any(a in ("-h", "--help", "help") for a in raw_args):
-        print_help()
-        return 0
 
-    if any(a in ("-V", "-v", "--version", "version") for a in raw_args):
-        print(f"{ui.badge()} {ui.bold(f'v{__version__}')}")
-        return 0
-
-    user_cfg = load_user_config()
-    parser = _build_parser(user_cfg)
-    args = parser.parse_args(raw_args)
-
-    if args.clear_cache:
-        return clear_grip_cache()
-
-    target_md = discover_markdown_target(args.path)
-
-    mode_str = "GitHub Box" if args.github_mode else "GFM Standard"
-    theme_str = args.theme.capitalize()
-    frame_str = "Frameless" if args.frameless else f"{args.width}x{args.height}"
+def launch_document_viewer(target_md: Path, config: RenderConfig) -> int:
+    """Spawns the local Grip daemon and launches the native WebKitGTK viewer window."""
+    mode_str = "GitHub Box" if config.github_mode else "GFM Standard"
+    theme_str = config.theme.capitalize()
+    frame_str = "Frameless" if config.frameless else f"{config.width}x{config.height}"
     lines = [
         f"{ui.bold('Target Document:')}  {ui.cyan(str(target_md))} ({target_md.stat().st_size:,} bytes)",
         f"{ui.bold('Viewer Mode:')}      {ui.green(mode_str)} | Theme: {ui.magenta(theme_str)} | Window: {frame_str}",
         f"{ui.bold('Rendering Engine:')} Grip (Local WebKit / PyWebView runtime)",
     ]
     ui.panel("GOGGLES GFM DOCUMENT VIEWER", lines)
-
-    config = RenderConfig(
-        target_path=target_md,
-        host=args.host,
-        port=args.port,
-        wide=args.wide,
-        user_content=args.user_content,
-        context=args.context,
-        title=args.title,
-        api_url=args.api_url,
-        token=args.token,
-        pass_path=args.pass_path,
-        no_inline=args.no_inline,
-        frameless=args.frameless,
-        github_mode=args.github_mode,
-        theme=args.theme,
-        width=args.width,
-        height=args.height,
-        debug=args.debug,
-    )
 
     orchestrator = GripOrchestrator(config)
     try:
@@ -205,6 +202,138 @@ def main(argv: Sequence[str] | None = None) -> int:
         ui.error_panel("Viewer Runtime Error", str(exc).splitlines())
         return 1
     return 0
+
+
+def run_interactive_hub(docs: list[Path], user_cfg: dict[str, Any]) -> int:
+    """Interactive Quick Actions menu matching Snowpack, Borealis, and Barograph."""
+    actions: list[tuple[str, str, str]] = []
+
+    if docs:
+        actions.append(
+            (
+                "select",
+                "Select Discovered Document to Preview...",
+                f"Choose from {len(docs)} Markdown file(s) in active workspace",
+            )
+        )
+
+    actions.append(
+        (
+            "scan",
+            "Search Workspace Subdirectories Recursively (*.md)...",
+            "Scan workspace tree for nested Markdown documents",
+        )
+    )
+    actions.append(
+        (
+            "prompt",
+            "Open Document by Custom Path...",
+            "Prompt for explicit relative or absolute file path",
+        )
+    )
+    actions.append(
+        (
+            "cache",
+            "Clear Grip Cached Primer CSS Assets",
+            "Invoke `grip --clear` to refresh local GitHub asset cache",
+        )
+    )
+    actions.append(
+        (
+            "help",
+            "Show CLI Options & Window Keyboard Shortcuts",
+            "Print comprehensive CLI usage guide and viewer keybindings",
+        )
+    )
+    actions.append(("exit", "Exit", "Close Goggles"))
+
+    choice = ui.select("Goggles Quick Actions:", actions)
+
+    if choice == "exit":
+        return 0
+    elif choice == "help":
+        print_help()
+        return 0
+    elif choice == "cache":
+        return clear_grip_cache()
+    elif choice == "select" and docs:
+        options = [
+            (str(f.resolve()), f"📄 {f.name}", f"{f.stat().st_size:,} bytes")
+            for f in docs
+        ]
+        chosen = ui.select("Select Markdown document to open:", options)
+        target = Path(chosen).resolve()
+        config = _build_render_config(target, user_cfg)
+        return launch_document_viewer(target, config)
+    elif choice == "scan":
+        nested = scan_recursive_markdown(Path(".").resolve())
+        if not nested:
+            ui.error("No Markdown files found in workspace subdirectories.")
+            return 1
+        options = [
+            (
+                str(f.resolve()),
+                f"📄 {f.relative_to(Path('.').resolve())}",
+                f"{f.stat().st_size:,} bytes",
+            )
+            for f in nested
+        ]
+        chosen = ui.select("Select nested Markdown document to open:", options)
+        target = Path(chosen).resolve()
+        config = _build_render_config(target, user_cfg)
+        return launch_document_viewer(target, config)
+    elif choice == "prompt":
+        entered = ui.prompt("Enter Markdown file path to open")
+        if not entered or not entered.strip():
+            return 0
+        target = Path(entered.strip()).resolve()
+        if not target.is_file():
+            ui.error(f"File '{entered}' not found.")
+            return 1
+        config = _build_render_config(target, user_cfg)
+        return launch_document_viewer(target, config)
+
+    return 0
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    raw_args = list(argv) if argv is not None else sys.argv[1:]
+    handle_color_args(raw_args)
+
+    if any(a in ("-h", "--help", "help") for a in raw_args):
+        print_help()
+        return 0
+
+    if any(a in ("-V", "-v", "--version", "version") for a in raw_args):
+        print(f"{ui.badge()} {ui.bold(f'v{__version__}')}")
+        return 0
+
+    user_cfg = load_user_config()
+
+    # When run without arguments: display dashboard and launch interactive hub if in a TTY!
+    if not raw_args:
+        docs = print_status_dashboard()
+        if sys.stdin.isatty():
+            return run_interactive_hub(docs, user_cfg)
+        else:
+            print_help()
+            return 0
+
+    parser = _build_parser(user_cfg)
+    args = parser.parse_args(raw_args)
+
+    if args.clear_cache:
+        return clear_grip_cache()
+
+    if not args.path:
+        ui.error("No Markdown document specified. Specify a file: goggles <file.md>")
+        print()
+        print_help()
+        return 1
+
+    target_md = discover_markdown_target(args.path)
+    config = _build_render_config(target_md, user_cfg, args)
+    return launch_document_viewer(target_md, config)
 
 
 if __name__ == "__main__":

@@ -25,6 +25,9 @@ Goggles is a dedicated, zero-clutter native desktop viewer for GitHub-Flavored M
 Run Goggles directly via Nix without installing:
 
 ```bash
+# Launch interactive dashboard & Quick Actions start menu
+nix run github:SpanishSyntax/Goggles
+
 # Render README.md in an isolated native desktop window
 nix run github:SpanishSyntax/Goggles -- README.md
 
@@ -34,8 +37,8 @@ nix run github:SpanishSyntax/Goggles -- README.md --dark --wide
 # Launch in a minimal frameless window
 nix run github:SpanishSyntax/Goggles -- docs/spec.md --frameless
 
-# Auto-discover or interactively pick a Markdown file in the current directory
-nix run github:SpanishSyntax/Goggles
+# Interactively pick a Markdown file from a directory
+nix run github:SpanishSyntax/Goggles -- docs/
 ```
 
 ---
@@ -43,8 +46,9 @@ nix run github:SpanishSyntax/Goggles
 ## 💻 CLI Commands & Options
 
 ```text
-Usage: goggles <path-to-markdown> [options]
-       goggles [directory] [options]
+Usage: goggles                                Open interactive dashboard & document picker
+       goggles <path-to-markdown> [options]   Directly preview Markdown document
+       goggles <directory> [options]          Select *.md interactively within directory
 
 Options:
   -p, --port PORT        Bind specific localhost port (default: random ephemeral port)
