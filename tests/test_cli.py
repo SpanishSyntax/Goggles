@@ -63,3 +63,52 @@ def test_interactive_hub_prompt_empty(monkeypatch):
     ret = run_interactive_hub([], {})
     assert ret == 0
 
+
+def test_cli_debug_flag_config(tmp_path):
+    from goggles.cli import _build_parser, _build_render_config
+
+    test_file = tmp_path / "doc.md"
+    test_file.write_text("# Hello")
+
+    parser = _build_parser({})
+    args_default = parser.parse_args([str(test_file)])
+    cfg_default = _build_render_config(test_file, {}, args_default)
+    assert cfg_default.debug is False
+
+    args_debug = parser.parse_args([str(test_file), "--debug"])
+    cfg_debug = _build_render_config(test_file, {}, args_debug)
+    assert cfg_debug.debug is True
+
+
+def test_launch_viewer_exception_formatting(tmp_path, monkeypatch, capsys):
+    from goggles.cli import launch_document_viewer
+    from goggles.core import RenderConfig
+    import goggles.cli as cli_mod
+
+    test_file = tmp_path / "doc.md"
+    test_file.write_text("# Test")
+
+    def mock_fail(*args, **kwargs):
+        raise RuntimeError("Simulated GTK failure")
+
+    monkeypatch.setattr(cli_mod, "launch_viewer", mock_fail)
+
+    # 1. Without debug
+    cfg_normal = RenderConfig(target_path=test_file, debug=False)
+    ret = launch_document_viewer(test_file, cfg_normal)
+    assert ret == 1
+    err_normal = capsys.readouterr().err
+    assert "Simulated GTK failure" in err_normal
+    assert "Tip: Run with" in err_normal
+    assert "--debug" in err_normal
+    assert "Traceback (most recent call last):" not in err_normal
+
+    # 2. With debug
+    cfg_debug = RenderConfig(target_path=test_file, debug=True)
+    ret = launch_document_viewer(test_file, cfg_debug)
+    assert ret == 1
+    err_debug = capsys.readouterr().err
+    assert "Simulated GTK failure" in err_debug
+    assert "Traceback (most recent call last):" in err_debug
+
+

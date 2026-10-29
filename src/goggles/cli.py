@@ -6,6 +6,7 @@ import argparse
 from pathlib import Path
 import subprocess
 import sys
+import traceback
 from typing import Any, Sequence
 
 from goggles import __version__
@@ -200,12 +201,29 @@ def launch_document_viewer(target_md: Path, config: RenderConfig) -> int:
         return exc.code if isinstance(exc.code, int) else 0
     except Exception as exc:
         orchestrator.stop()
-        ui.error_panel("Viewer Runtime Error", str(exc).splitlines())
+        exc_type = type(exc).__name__
+        err_lines = [
+            f"{ui.bold('Exception:')} {ui.red(exc_type)}: {exc}",
+        ]
+        if config.debug:
+            err_lines.append("")
+            err_lines.append(ui.bold("Traceback (most recent call last):"))
+            err_lines.extend(traceback.format_exc().strip().splitlines())
+        else:
+            err_lines.extend([
+                "",
+                f"Tip: Run with {ui.cyan('--debug')} to display the full Python stack trace.",
+            ])
+        ui.error_panel("Viewer Runtime Error", err_lines)
         return 1
     return 0
 
 
-def run_interactive_hub(docs: list[Path], user_cfg: dict[str, Any]) -> int:
+def run_interactive_hub(
+    docs: list[Path],
+    user_cfg: dict[str, Any],
+    args: argparse.Namespace | None = None,
+) -> int:
     """Interactive Quick Actions menu matching Snowpack, Borealis, and Barograph."""
     actions: list[tuple[str, str, str]] = []
 
@@ -264,7 +282,7 @@ def run_interactive_hub(docs: list[Path], user_cfg: dict[str, Any]) -> int:
         ]
         chosen = ui.select("Select Markdown document to open:", options)
         target = Path(chosen).resolve()
-        config = _build_render_config(target, user_cfg)
+        config = _build_render_config(target, user_cfg, args)
         return launch_document_viewer(target, config)
     elif choice == "scan":
         nested = scan_recursive_markdown(Path(".").resolve())
@@ -281,7 +299,7 @@ def run_interactive_hub(docs: list[Path], user_cfg: dict[str, Any]) -> int:
         ]
         chosen = ui.select("Select nested Markdown document to open:", options)
         target = Path(chosen).resolve()
-        config = _build_render_config(target, user_cfg)
+        config = _build_render_config(target, user_cfg, args)
         return launch_document_viewer(target, config)
     elif choice == "prompt":
         entered = ui.prompt("Enter Markdown file path to open")
@@ -291,7 +309,7 @@ def run_interactive_hub(docs: list[Path], user_cfg: dict[str, Any]) -> int:
         if not target.is_file():
             ui.error(f"File '{entered}' not found.")
             return 1
-        config = _build_render_config(target, user_cfg)
+        config = _build_render_config(target, user_cfg, args)
         return launch_document_viewer(target, config)
 
     return 0
@@ -311,15 +329,6 @@ def main(argv: Sequence[str] | None = None) -> int:
 
     user_cfg = load_user_config()
 
-    # When run without arguments: display dashboard and launch interactive hub if in a TTY!
-    if not raw_args:
-        docs = print_status_dashboard()
-        if sys.stdin.isatty():
-            return run_interactive_hub(docs, user_cfg)
-        else:
-            print_help()
-            return 0
-
     parser = _build_parser(user_cfg)
     args = parser.parse_args(raw_args)
 
@@ -327,6 +336,12 @@ def main(argv: Sequence[str] | None = None) -> int:
         return clear_grip_cache()
 
     if not args.path:
+        if sys.stdin.isatty():
+            docs = print_status_dashboard()
+            return run_interactive_hub(docs, user_cfg, args)
+        if not raw_args:
+            print_help()
+            return 0
         ui.error("No Markdown document specified. Specify a file: goggles <file.md>")
         print()
         print_help()
