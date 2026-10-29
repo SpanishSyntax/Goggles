@@ -43,6 +43,7 @@ in
         "''${gappsWrapperArgs[@]}"
         --prefix PATH : "${lib.makeBinPath [gripPkg]}"
         --set-default PYWEBVIEW_GUI "gtk"
+        --unset LD_LIBRARY_PATH
       )
     '';
 

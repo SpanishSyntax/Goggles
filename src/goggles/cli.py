@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import os
 from pathlib import Path
 import subprocess
 import sys
@@ -202,19 +203,26 @@ def launch_document_viewer(target_md: Path, config: RenderConfig) -> int:
     except Exception as exc:
         orchestrator.stop()
         exc_type = type(exc).__name__
-        err_lines = [
-            f"{ui.bold('Exception:')} {ui.red(exc_type)}: {exc}",
+        err_msg = str(exc)
+        panel_lines = [
+            f"{ui.bold('Exception:')} {ui.red(exc_type)}",
+            f"{err_msg}",
         ]
+        if os.environ.get("LD_LIBRARY_PATH"):
+            panel_lines.append("")
+            panel_lines.append(
+                f"{ui.yellow('Warning:')} LD_LIBRARY_PATH is active in your environment, which can cause GLib/GTK symbol collisions."
+            )
+        if not config.debug:
+            panel_lines.append("")
+            panel_lines.append(
+                f"Tip: Run with {ui.cyan('--debug')} to display the full Python stack trace."
+            )
+        ui.error_panel("Viewer Runtime Error", panel_lines)
         if config.debug:
-            err_lines.append("")
-            err_lines.append(ui.bold("Traceback (most recent call last):"))
-            err_lines.extend(traceback.format_exc().strip().splitlines())
-        else:
-            err_lines.extend([
-                "",
-                f"Tip: Run with {ui.cyan('--debug')} to display the full Python stack trace.",
-            ])
-        ui.error_panel("Viewer Runtime Error", err_lines)
+            sys.stderr.write(f"\n{ui.bold('Traceback (most recent call last):')}\n")
+            traceback.print_exc(file=sys.stderr)
+            sys.stderr.flush()
         return 1
     return 0
 
