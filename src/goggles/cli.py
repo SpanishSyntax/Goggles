@@ -72,6 +72,33 @@ def clear_grip_cache() -> int:
 
 def print_help() -> None:
     """Prints colored usage instructions matching Flaker, Glaze, Folio, and Borealis."""
+    if ui.is_agent:
+        print(f"""Goggles v{__version__} - Instant GFM Native Desktop Markdown Viewer
+Usage: goggles <path-to-markdown> [options]
+       goggles [options]
+
+Options:
+  -A, --agent            Compact machine/agent friendly output mode
+  --json                 Structured JSON output mode
+  -p, --port PORT        Bind specific localhost port
+  --host HOST            Bind address for grip daemon
+  -g, --github-mode      Render with GitHub repository Box chrome & page layout
+  -w, --wide             Render wide GitHub document container
+  -u, --user-content     Render as GitHub user-content
+  -c, --context REPO     Repository context for autolinks
+  -t, --title TITLE      Override window title
+  --theme MODE           Viewer color theme: auto, dark, light
+  --frameless            Launch in a frameless minimal native window
+  --width PX             Initial window width in pixels
+  --height PX            Initial window height in pixels
+  --clear-cache          Clear cached GitHub CSS assets via `grip --clear`
+  --color MODE           Color output mode: auto, always, never
+  --no-color             Disable colored output
+  -h, --help             Show this help message and exit
+  -V, -v, --version      Show version information and exit
+""")
+        return
+
     print(f"""{ui.badge()} {ui.bold("Instant GitHub-Flavored Markdown (GFM) Native Desktop Viewer")}
 
 {ui.blue("Usage:")}
@@ -332,6 +359,14 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 0
 
     if any(a in ("-V", "-v", "--version", "version") for a in raw_args):
+        if ui.is_json:
+            import json
+
+            print(json.dumps({"app": "goggles", "version": __version__}))
+            return 0
+        if ui.is_agent:
+            print(f"goggles {__version__}")
+            return 0
         print(f"{ui.badge()} {ui.bold(f'v{__version__}')}")
         return 0
 
@@ -344,10 +379,24 @@ def main(argv: Sequence[str] | None = None) -> int:
         return clear_grip_cache()
 
     if not args.path:
-        if sys.stdin.isatty():
-            docs = print_status_dashboard()
+        docs = print_status_dashboard()
+        if ui.is_json:
+            import json
+
+            print(
+                json.dumps(
+                    {
+                        "status": "ok",
+                        "documents_count": len(docs),
+                        "documents": [str(d) for d in docs],
+                    },
+                    indent=2,
+                )
+            )
+            return 0
+        if sys.stdin.isatty() and not ui.is_agent:
             return run_interactive_hub(docs, user_cfg, args)
-        if not raw_args:
+        if not raw_args or ui.is_agent:
             print_help()
             return 0
         ui.error("No Markdown document specified. Specify a file: goggles <file.md>")

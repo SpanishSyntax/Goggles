@@ -91,7 +91,7 @@ def discover_markdown_target(raw_path: str | Path | None = None, base_dir: Path 
     )
 
     if not md_files:
-        if sys.stdin.isatty():
+        if sys.stdin.isatty() and not ui.is_agent:
             lines = [
                 f"{ui.bold('Active Directory:')} {search_dir}",
                 f"{ui.bold('Target Document:')}  {ui.dim('No markdown documents (*.md) found in directory')}",
@@ -125,6 +125,9 @@ def discover_markdown_target(raw_path: str | Path | None = None, base_dir: Path 
 
         ui.error(f"No Markdown files found in '{search_dir}'. Specify one: goggles <file.md>")
         sys.exit(1)
+
+    if ui.is_agent:
+        return md_files[0].resolve()
 
     if sys.stdin.isatty():
         options = [
