@@ -358,16 +358,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         print_help()
         return 0
 
-    if any(a in ("-V", "-v", "--version", "version") for a in raw_args):
-        if ui.is_json:
-            import json
-
-            print(json.dumps({"app": "goggles", "version": __version__}))
-            return 0
-        if ui.is_agent:
-            print(f"goggles {__version__}")
-            return 0
-        print(f"{ui.badge()} {ui.bold(f'v{__version__}')}")
+    if ui.handle_version_arg(raw_args, __version__):
         return 0
 
     user_cfg = load_user_config()
@@ -381,24 +372,23 @@ def main(argv: Sequence[str] | None = None) -> int:
     if not args.path:
         docs = print_status_dashboard()
         if ui.is_json:
-            import json
-
-            print(
-                json.dumps(
-                    {
-                        "status": "ok",
-                        "documents_count": len(docs),
-                        "documents": [str(d) for d in docs],
-                    },
-                    indent=2,
-                )
+            ui.json(
+                {
+                    "status": "ok",
+                    "documents_count": len(docs),
+                    "documents": [str(d) for d in docs],
+                }
             )
             return 0
-        if sys.stdin.isatty() and not ui.is_agent:
+        if ui.is_interactive:
             return run_interactive_hub(docs, user_cfg, args)
         if not raw_args or ui.is_agent:
             print_help()
             return 0
+        ui.error("No Markdown document specified. Specify a file: goggles <file.md>")
+        print()
+        print_help()
+        return 1
         ui.error("No Markdown document specified. Specify a file: goggles <file.md>")
         print()
         print_help()
