@@ -182,7 +182,9 @@ class GripOrchestrator:
     def url(self) -> str:
         return f"http://{self.config.host}:{self.port}/"
 
-    def _build_command(self, token: str | None, include_no_inline: bool = True) -> list[str]:
+    def _build_command(
+        self, token: str | None, include_no_inline: bool = True
+    ) -> list[str]:
         grip_bin = shutil.which("grip")
         if not grip_bin:
             raise GripStartupError(
@@ -225,6 +227,7 @@ class GripOrchestrator:
             raise SystemExit(128 + signum)
 
         import threading
+
         if threading.current_thread() is not threading.main_thread():
             return
 
@@ -237,6 +240,7 @@ class GripOrchestrator:
 
     def _restore_signal_traps(self):
         import threading
+
         if threading.current_thread() is not threading.main_thread():
             return
 

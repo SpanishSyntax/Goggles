@@ -81,9 +81,9 @@ def test_cli_debug_flag_config(tmp_path):
 
 
 def test_launch_viewer_exception_formatting(tmp_path, monkeypatch, capsys):
+    import goggles.cli as cli_mod
     from goggles.cli import launch_document_viewer
     from goggles.core import RenderConfig
-    import goggles.cli as cli_mod
 
     test_file = tmp_path / "doc.md"
     test_file.write_text("# Test")
@@ -110,5 +110,3 @@ def test_launch_viewer_exception_formatting(tmp_path, monkeypatch, capsys):
     err_debug = capsys.readouterr().err
     assert "Simulated GTK failure" in err_debug
     assert "Traceback (most recent call last):" in err_debug
-
-

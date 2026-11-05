@@ -1,14 +1,14 @@
 """Tests for Goggles document discovery and recursive search."""
 
 from pathlib import Path
+
+import pytest
+
 from goggles.discovery import (
     discover_markdown_target,
     print_status_dashboard,
     scan_recursive_markdown,
 )
-
-
-import pytest
 
 
 def test_print_status_dashboard(tmp_path: Path, capsys):

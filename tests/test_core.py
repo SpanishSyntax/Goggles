@@ -1,7 +1,8 @@
 """Tests for Goggles core process primitives and configuration."""
 
 from pathlib import Path
-from goggles.core import find_ephemeral_port, resolve_github_token, RenderConfig
+
+from goggles.core import RenderConfig, find_ephemeral_port, resolve_github_token
 
 
 def test_find_ephemeral_port():
@@ -33,6 +34,7 @@ def test_render_config():
 def test_goggles_bridge_deferred_close():
     import time
     from unittest.mock import MagicMock
+
     from goggles.viewer import GogglesBridge
 
     mock_orch = MagicMock()

@@ -1,6 +1,7 @@
 """Tests for Goggles user configuration."""
 
 from pathlib import Path
+
 from goggles.config import load_user_config
 
 

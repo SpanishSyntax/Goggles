@@ -64,7 +64,9 @@ def scan_recursive_markdown(root: Path) -> list[Path]:
     return sorted(results, key=lambda p: (len(p.parts), p.name.lower()))
 
 
-def discover_markdown_target(raw_path: str | Path | None = None, base_dir: Path | str = ".") -> Path:
+def discover_markdown_target(
+    raw_path: str | Path | None = None, base_dir: Path | str = "."
+) -> Path:
     """Resolves a target Markdown document or interactively prompts if a directory is given."""
     search_dir = Path(base_dir).resolve()
 
@@ -72,7 +74,9 @@ def discover_markdown_target(raw_path: str | Path | None = None, base_dir: Path 
         ui.error("No Markdown document specified. Specify a file: goggles <file.md>")
         sys.exit(1)
 
-    target = search_dir / raw_path if not Path(raw_path).is_absolute() else Path(raw_path)
+    target = (
+        search_dir / raw_path if not Path(raw_path).is_absolute() else Path(raw_path)
+    )
     if target.is_file():
         return target
     elif target.is_dir():
@@ -123,7 +127,9 @@ def discover_markdown_target(raw_path: str | Path | None = None, base_dir: Path 
             else:
                 sys.exit(0)
 
-        ui.error(f"No Markdown files found in '{search_dir}'. Specify one: goggles <file.md>")
+        ui.error(
+            f"No Markdown files found in '{search_dir}'. Specify one: goggles <file.md>"
+        )
         sys.exit(1)
 
     if ui.is_agent:

@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
-from goggles.mcp import StdioMCPServer, TOOL_DEFINITIONS, execute_tool
+from goggles.mcp import StdioMCPServer, execute_tool
 
 
 def test_mcp_initialize() -> None:

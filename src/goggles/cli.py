@@ -4,10 +4,10 @@ from __future__ import annotations
 
 import argparse
 import os
-from pathlib import Path
 import subprocess
 import sys
 import traceback
+from pathlib import Path
 from typing import Any, Sequence
 
 from goggles import __version__
@@ -142,27 +142,66 @@ Options:
 
 def _build_parser(user_cfg: dict[str, Any]) -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="goggles", add_help=False)
-    parser.add_argument("path", nargs="?", default=None, help="Path to Markdown document to preview.")
-    parser.add_argument("-p", "--port", type=int, default=int(user_cfg.get("port", 0)), help="Local port.")
-    parser.add_argument("--host", default=str(user_cfg.get("host", "127.0.0.1")), help="Local host.")
-    parser.add_argument("-g", "--github-mode", "--github", dest="github_mode", action="store_true", default=bool(user_cfg.get("github_mode", False)))
-    parser.add_argument("-w", "--wide", action="store_true", default=bool(user_cfg.get("wide", False)))
-    parser.add_argument("-u", "--user-content", action="store_true", default=bool(user_cfg.get("user_content", False)))
+    parser.add_argument(
+        "path", nargs="?", default=None, help="Path to Markdown document to preview."
+    )
+    parser.add_argument(
+        "-p",
+        "--port",
+        type=int,
+        default=int(user_cfg.get("port", 0)),
+        help="Local port.",
+    )
+    parser.add_argument(
+        "--host", default=str(user_cfg.get("host", "127.0.0.1")), help="Local host."
+    )
+    parser.add_argument(
+        "-g",
+        "--github-mode",
+        "--github",
+        dest="github_mode",
+        action="store_true",
+        default=bool(user_cfg.get("github_mode", False)),
+    )
+    parser.add_argument(
+        "-w", "--wide", action="store_true", default=bool(user_cfg.get("wide", False))
+    )
+    parser.add_argument(
+        "-u",
+        "--user-content",
+        action="store_true",
+        default=bool(user_cfg.get("user_content", False)),
+    )
     parser.add_argument("-c", "--context", default=user_cfg.get("context"))
     parser.add_argument("-t", "--title", default=user_cfg.get("title"))
-    parser.add_argument("--theme", choices=["auto", "dark", "light"], default=str(user_cfg.get("theme", "auto")))
+    parser.add_argument(
+        "--theme",
+        choices=["auto", "dark", "light"],
+        default=str(user_cfg.get("theme", "auto")),
+    )
     parser.add_argument("--dark", dest="theme", action="store_const", const="dark")
     parser.add_argument("--light", dest="theme", action="store_const", const="light")
-    parser.add_argument("--frameless", action="store_true", default=bool(user_cfg.get("frameless", False)))
+    parser.add_argument(
+        "--frameless",
+        action="store_true",
+        default=bool(user_cfg.get("frameless", False)),
+    )
     parser.add_argument("--width", type=int, default=int(user_cfg.get("width", 980)))
     parser.add_argument("--height", type=int, default=int(user_cfg.get("height", 860)))
     parser.add_argument("--token", default=user_cfg.get("token"))
     parser.add_argument("--pass-path", default=user_cfg.get("pass_path"))
     parser.add_argument("--api-url", default=user_cfg.get("api_url"))
-    parser.add_argument("--inline", dest="no_inline", action="store_false", default=bool(user_cfg.get("no_inline", True)))
+    parser.add_argument(
+        "--inline",
+        dest="no_inline",
+        action="store_false",
+        default=bool(user_cfg.get("no_inline", True)),
+    )
     parser.add_argument("--no-inline", dest="no_inline", action="store_true")
     parser.add_argument("--clear-cache", action="store_true")
-    parser.add_argument("--debug", action="store_true", default=bool(user_cfg.get("debug", False)))
+    parser.add_argument(
+        "--debug", action="store_true", default=bool(user_cfg.get("debug", False))
+    )
     add_color_args(parser)
     return parser
 
@@ -178,7 +217,9 @@ def _build_render_config(
         host=args.host if args else str(user_cfg.get("host", "127.0.0.1")),
         port=args.port if args else int(user_cfg.get("port", 0)),
         wide=args.wide if args else bool(user_cfg.get("wide", False)),
-        user_content=args.user_content if args else bool(user_cfg.get("user_content", False)),
+        user_content=args.user_content
+        if args
+        else bool(user_cfg.get("user_content", False)),
         context=args.context if args else user_cfg.get("context"),
         title=args.title if args else user_cfg.get("title"),
         api_url=args.api_url if args else user_cfg.get("api_url"),
@@ -186,7 +227,9 @@ def _build_render_config(
         pass_path=args.pass_path if args else user_cfg.get("pass_path"),
         no_inline=args.no_inline if args else bool(user_cfg.get("no_inline", True)),
         frameless=args.frameless if args else bool(user_cfg.get("frameless", False)),
-        github_mode=args.github_mode if args else bool(user_cfg.get("github_mode", False)),
+        github_mode=args.github_mode
+        if args
+        else bool(user_cfg.get("github_mode", False)),
         theme=args.theme if args else str(user_cfg.get("theme", "auto")),
         width=args.width if args else int(user_cfg.get("width", 980)),
         height=args.height if args else int(user_cfg.get("height", 860)),
