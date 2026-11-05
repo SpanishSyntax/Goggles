@@ -24,7 +24,13 @@ from goggles.discovery import (
     print_status_dashboard,
     scan_recursive_markdown,
 )
-from goggles.ui import add_color_args, handle_color_args, ui
+from goggles.ui import (
+    add_agent_args,
+    add_color_args,
+    handle_agent_args,
+    handle_color_args,
+    ui,
+)
 from goggles.viewer import launch_viewer
 
 __all__ = [
@@ -203,6 +209,7 @@ def _build_parser(user_cfg: dict[str, Any]) -> argparse.ArgumentParser:
         "--debug", action="store_true", default=bool(user_cfg.get("debug", False))
     )
     add_color_args(parser)
+    add_agent_args(parser)
     return parser
 
 
@@ -395,6 +402,7 @@ def run_interactive_hub(
 
 def main(argv: Sequence[str] | None = None) -> int:
     raw_args = list(argv) if argv is not None else sys.argv[1:]
+    handle_agent_args(raw_args)
     handle_color_args(raw_args)
 
     if any(a in ("-h", "--help", "help") for a in raw_args):
@@ -429,6 +437,17 @@ def main(argv: Sequence[str] | None = None) -> int:
                     "documents": [str(d) for d in docs],
                 }
             )
+            return 0
+        if ui.is_agent or getattr(ui, "is_toon", False):
+            if hasattr(ui, "data"):
+                ui.data(
+                    data=[{"document": str(d.name), "path": str(d)} for d in docs],
+                    title="Discovered Documents",
+                    headers=["document", "path"],
+                    rows=[[str(d.name), str(d)] for d in docs],
+                )
+            else:
+                ui.json({"status": "ok", "documents": [str(d) for d in docs]})
             return 0
         if ui.is_interactive:
             return run_interactive_hub(docs, user_cfg, args)
