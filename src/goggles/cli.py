@@ -361,6 +361,13 @@ def main(argv: Sequence[str] | None = None) -> int:
     if ui.handle_version_arg(raw_args, __version__):
         return 0
 
+    if raw_args and raw_args[0] == "mcp":
+        from goggles.mcp import StdioMCPServer
+
+        server = StdioMCPServer()
+        server.run()
+        return 0
+
     user_cfg = load_user_config()
 
     parser = _build_parser(user_cfg)
