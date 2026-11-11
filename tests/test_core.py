@@ -1,0 +1,51 @@
+"""Tests for Goggles core process primitives and configuration."""
+
+from pathlib import Path
+
+from goggles.core import RenderConfig, find_ephemeral_port, resolve_github_token
+
+
+def test_find_ephemeral_port():
+    port = find_ephemeral_port("127.0.0.1")
+    assert isinstance(port, int)
+    assert 1024 <= port <= 65535
+
+
+def test_resolve_github_token_explicit():
+    token, source = resolve_github_token(explicit_token="ghp_test123")
+    assert token == "ghp_test123"
+    assert "token" in source.lower()
+
+
+def test_resolve_github_token_env(monkeypatch):
+    monkeypatch.setenv("GITHUB_TOKEN", "ghp_envtoken")
+    token, source = resolve_github_token()
+    assert token == "ghp_envtoken"
+    assert "github_token" in source.lower()
+
+
+def test_render_config():
+    cfg = RenderConfig(target_path=Path("README.md"), width=1200, height=900)
+    assert cfg.width == 1200
+    assert cfg.height == 900
+    assert cfg.target_path == Path("README.md")
+
+
+def test_goggles_bridge_deferred_close():
+    import time
+    from unittest.mock import MagicMock
+
+    from goggles.viewer import GogglesBridge
+
+    mock_orch = MagicMock()
+    mock_window = MagicMock()
+
+    bridge = GogglesBridge(mock_orch)
+    bridge.attach_window(mock_window)
+
+    ret = bridge.close_window()
+    assert ret is True
+    time.sleep(0.1)
+
+    mock_window.destroy.assert_called_once()
+    mock_orch.stop.assert_called_once()
