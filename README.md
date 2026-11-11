@@ -2,11 +2,16 @@
   <img src="assets/banner.png" alt="Traditional carved Inuit snow goggles designed to reduce polar glare" width="100%" />
 </p>
 
-# 🥽 Goggles
+# Goggles 🥽
 
-> **Instant GitHub-Flavored Markdown (GFM) Native Desktop Document Viewer**
+Instant GitHub-Flavored Markdown (GFM) native desktop document viewer.
 
-Goggles is a dedicated, zero-clutter native desktop viewer for GitHub-Flavored Markdown (GFM) built for the **Frost** ecosystem alongside `Flaker`, `Borealis`, `Glaze`, `Folio`, and `Sled`. It pairs [`grip`](https://github.com/joeyespo/grip) (which renders via GitHub's official Markdown API and Primer CSS) with an ephemeral local `pywebview` / WebKit2GTK window that automatically terminates the background server the instant the window closes.
+Goggles is a dedicated, zero-clutter native desktop viewer for GitHub-Flavored Markdown (GFM). Built for the Frost ecosystem alongside Flaker, Borealis, Glaze, Folio, and Sled, it pairs `grip` (rendering via GitHub's official Markdown API and Primer CSS) with an ephemeral local `pywebview` / WebKit2GTK window that terminates the background server the moment the window closes.
+
+---
+
+> [!TIP]
+> **Documentation Site**: Comprehensive architecture notes, complete CLI references, and configuration options are available on the **[Documentation Site](https://spanishsyntax.github.io/Goggles)**.
 
 ---
 
@@ -14,29 +19,31 @@ Goggles is a dedicated, zero-clutter native desktop viewer for GitHub-Flavored M
 
 > **snow goggles** (`/ˈɡɒɡ.əlz/`) — *noun:* Slotted, glare-resistant eyewear carved from caribou antler or driftwood by inuit hunters, shielding vision from blinding arctic blizzard whiteouts and high-albedo snowfield reflections.
 
-Stepping out onto an open arctic icefield without eye protection causes blinding snow glare. Similarly, reading technical markdown through bloated web browsers or heavy electron editors introduces visual clutter, distracting toolbars, and sluggish render latency.
+Stepping out onto an open arctic icefield without eye protection causes blinding snow glare. Similarly, reading technical markdown through heavy web browsers or bloated editors introduces visual clutter, distracting toolbars, and sluggish render latency.
 
 **Goggles provides slotted, glare-free clarity:**
-- **Pure Focus**: Launches an instantaneous, zero-clutter native desktop window rendering GitHub Flavored Markdown (GFM) with official Primer CSS typography.
+
+- **Focused Reading**: Launches an instantaneous, zero-clutter native desktop window rendering GitHub Flavored Markdown (GFM) with official Primer CSS typography.
 - **Ephemeral Lifecycle**: Spawns directly from the terminal and terminates all background processes the millisecond the window closes—leaving zero background battery or memory footprint.
 
 ---
 
-## ✨ Features
+## Features
 
-- 🐙 **100% GitHub Rendering Parity**:
+- **GitHub Rendering Parity**:
   - **GitHub Alerts / Callouts**: Native rendering for `[!NOTE]`, `[!TIP]`, `[!IMPORTANT]`, `[!WARNING]`, and `[!CAUTION]`.
-  - **Diagrams & Flowcharts**: Automatic client-side **Mermaid.js** diagram rendering for ```` ```mermaid ```` blocks.
+  - **Diagrams & Flowcharts**: Client-side **Mermaid.js** diagram rendering for ```` ```mermaid ```` code blocks.
   - **Mathematical Typesetting**: Inline (`$...$`) and display (`$$...$$`) LaTeX math powered by **KaTeX**.
   - **GFM Tables, Task Lists & Syntax Highlighting**: Exact GitHub Primer typography and code highlighting.
-- 🪟 **Isolated Native Desktop Frame**: Renders inside a lightweight `pywebview` (GTK3 / WebKit2GTK) window on Wayland and X11—no browser tab clutter or lingering background dev servers.
-- 🔌 **Ephemeral Loopback & Strict Teardown**: Dynamically binds a random unprivileged localhost port, spawns `grip --no-inline` in an isolated process group with Linux `PR_SET_PDEATHSIG`, and guarantees immediate daemon teardown on window exit or signal (`SIGINT`, `SIGTERM`, `SIGHUP`).
-- 🔐 **Zero-Config Token Discovery**: Seamlessly bypasses GitHub's 60 req/hr anonymous rate limit (unlocking 5,000 req/hr) by checking `GITHUB_TOKEN` / `GRIP_TOKEN` / `GH_TOKEN` / `GOGGLES_GITHUB_TOKEN`, `~/.config/goggles/token`, standard `pass` (`password-store`) paths (`github/token`, `github/pat`), or `gh auth token`.
-- 🌗 **Adaptive Dark & Light Modes**: Follows system color scheme (`--theme auto`), forces GitHub Dark (`--dark`) or Light (`--light`), or toggles live with `t`.
+- **Isolated Native Desktop Frame**: Renders inside a lightweight `pywebview` (GTK3 / WebKit2GTK) window on Wayland and X11 without browser tab clutter.
+- **Ephemeral Loopback & Strict Teardown**: Binds an ephemeral unprivileged localhost port, spawns `grip` in an isolated process group with Linux `PR_SET_PDEATHSIG`, and guarantees daemon teardown on window exit or signal (`SIGINT`, `SIGTERM`, `SIGHUP`).
+- **Token Discovery Hierarchy**: Bypasses GitHub's 60 req/hr anonymous rate limit by checking `GITHUB_TOKEN` / `GRIP_TOKEN` / `GH_TOKEN` / `GOGGLES_GITHUB_TOKEN`, `~/.config/goggles/token`, Unix `pass` (`password-store`) paths (`github/token`, `github/pat`), or `gh auth token`.
+- **Adaptive Dark & Light Modes**: Follows system color scheme (`--theme auto`), forces GitHub Dark (`--dark`) or Light (`--light`), or toggles live with `t`.
+- **Model Context Protocol (MCP)**: Native stdio MCP server for agentic markdown document discovery and previewing.
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
 Run Goggles directly via Nix without installing:
 
@@ -59,12 +66,13 @@ nix run github:SpanishSyntax/Goggles -- docs/
 
 ---
 
-## 💻 CLI Commands & Options
+## CLI Reference
 
 ```text
 Usage: goggles                                Open interactive dashboard & document picker
        goggles <path-to-markdown> [options]   Directly preview Markdown document
        goggles <directory> [options]          Select *.md interactively within directory
+       goggles mcp                            Start Model Context Protocol stdio server
 
 Options:
   -p, --port PORT        Bind specific localhost port (default: random ephemeral port)
@@ -85,28 +93,45 @@ Options:
   --inline               Inline CSS styles instead of passing --no-inline to grip
   --clear-cache          Clear cached GitHub CSS assets via `grip --clear` and exit
   --debug                Enable WebKit inspector / developer tools in viewer window
+  -A, --agent            Compact machine-friendly output mode
+  --json                 Structured JSON output mode
   --color MODE           Color output mode: auto, always, never (default: auto)
   --no-color             Disable colored terminal output
   -h, --help             Show this help message and exit
   -V, -v, --version      Show version information and exit
 ```
 
-### ⌨️ Window Keyboard Shortcuts
+---
+
+## Window Keyboard Shortcuts
 
 | Keybinding | Action |
 | :--- | :--- |
-| `q` / `Esc` / `Ctrl+W` | Close window & terminate ephemeral `grip` daemon |
+| `q` / `Esc` / `Ctrl + W` | Close window & terminate ephemeral `grip` daemon |
 | `t` | Toggle between GitHub Dark and Light themes |
 | `g` | Toggle between Clean Document Mode and GitHub Box Layout |
-| `r` / `F5` / `Ctrl+R` | Reload Markdown document |
+| `r` / `F5` / `Ctrl + R` | Reload Markdown document |
 | `Ctrl + +` / `Ctrl + -` | Zoom in / Zoom out |
 | `Ctrl + 0` | Reset zoom level to 100% |
 
 ---
 
-## ❄️ Frost & Home Manager Integration
+## Configuration
 
-### Home Manager Standalone
+Goggles optionally reads default preferences from `~/.config/goggles/goggles.toml`:
+
+```toml
+[general]
+theme = "auto"
+width = 980
+height = 860
+wide = false
+pass_path = "github/token"
+```
+
+---
+
+## Home Manager Configuration
 
 Add Goggles to your `flake.nix`:
 
@@ -133,39 +158,8 @@ Add Goggles to your `flake.nix`:
 }
 ```
 
-### Frost Iceberg Module (`home/applications/icebergs/goggles.nix`)
-
-In **Frost**, add `goggles` to your flake inputs and enable the iceberg module:
-
-```nix
-{
-  config,
-  lib,
-  inputs,
-  ...
-}: let
-  cfg = config.frost.home.apps.icebergs.goggles;
-in {
-  imports = [inputs.goggles.homeManagerModules.default];
-
-  options.frost.home.apps.icebergs.goggles = {
-    enable = lib.mkEnableOption "Goggles instant GFM native desktop viewer";
-  };
-
-  config = lib.mkIf cfg.enable {
-    programs.goggles.enable = true;
-  };
-}
-```
-
-Then enable it in your Frost host/home configuration:
-
-```nix
-frost.home.apps.icebergs.goggles.enable = true;
-```
-
 ---
 
-## 📜 License
+## License
 
 MIT © SpanishSyntax
