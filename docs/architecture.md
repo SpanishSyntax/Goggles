@@ -38,24 +38,15 @@ Goggles utilizes `pywebview` paired with Linux WebKit2GTK (`webkit2gtk-4.1` on G
 
 Goggles employs multi-layered teardown mechanisms to guarantee zero orphan background processes:
 
-```
-[goggles CLI]
-     │
-     ├── 1. Bind port 0 -> Kernel returns ephemeral port
-     ├── 2. Resolve GitHub API token
-     ├── 3. Spawn child grip subprocess:
-     │        ├── Linux `PR_SET_PDEATHSIG` (SIGTERM if parent dies)
-     │        └── `os.setsid()` (isolated process group)
-     ├── 4. Polling loop awaits socket availability on localhost:port
-     │
-[pywebview Desktop Window]
-     │
-     ├── User closes window or presses `q` / `Esc`
-     │
-[Cleanup Traps]
-     ├── Python `atexit` hook invoked
-     ├── OS Signal handlers: SIGINT, SIGTERM, SIGHUP, SIGQUIT
-     └── `os.killpg(pgid, SIGTERM)` followed by SIGKILL if timeout expires
+```mermaid
+flowchart TD
+    CLI["goggles CLI"] --> Port["1. Bind port 0 -> Kernel returns ephemeral port"]
+    Port --> Token["2. Resolve GitHub API token"]
+    Token --> Grip["3. Spawn child grip subprocess (PR_SET_PDEATHSIG + os.setsid)"]
+    Grip --> Poll["4. Await socket availability on localhost:port"]
+    Poll --> Win["pywebview Desktop Window"]
+    Win -->|"User closes window or presses q / Esc"| Cleanup["Cleanup Traps (atexit + SIGINT/SIGTERM/SIGHUP/SIGQUIT)"]
+    Cleanup --> Kill["os.killpg(pgid, SIGTERM)"]
 ```
 
 ### Linux `PR_SET_PDEATHSIG`

@@ -88,10 +88,10 @@ You can override the target entry by either:
 }
 ```
 
-### Frost Iceberg Module
+### Frost Module
 
-In the **Frost** ecosystem, Goggles is enabled via the iceberg app module:
+In the **Frost** ecosystem, Goggles is enabled via the office readers app module:
 
 ```nix
-frost.home.apps.icebergs.goggles.enable = true;
+frost.home.apps.office.readers.goggles.enable = true;
 ```
