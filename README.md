@@ -1,6 +1,4 @@
-<p align="center">
-  <img src="assets/banner.png" alt="Traditional carved Inuit snow goggles designed to reduce polar glare" width="100%" />
-</p>
+<img src="assets/banner.png" alt="Traditional carved Inuit snow goggles designed to reduce polar glare" width="100%" />
 
 # Goggles 🥽
 
